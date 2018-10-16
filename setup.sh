@@ -10,3 +10,8 @@ pip install --global-option=build_ext --global-option="--library-dirs=/opt/mapr/
 export LD_LIBRARY_PATH=:/opt/mapr/lib:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.181-3.b13.el7_5.x86_64/jre/lib/amd64/server
 yum remove -y librdkafka
 
+wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
+yum install -y apache-maven
+pip install maprdb
+
+
