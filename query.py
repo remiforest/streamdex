@@ -47,4 +47,25 @@ for condition in conditions:
     print("\n\n {} ids retreived".format(nb_received))
     c.close()
 
-print(ids)
+# intersect indexes
+
+# select smallest array
+min_len = float("inf")
+for k,v in ids.iteritems():
+    if len(v) < min_len:
+        min_len = len(v)
+        min_idx = k
+
+print(min_idx)
+print(min_len)
+
+result = []
+
+for _id in ids[min_idx]:
+    for k,v in ids.iteritems():
+        if k != min_idx:
+            if not _id in v:
+                break
+        result.append(_id)
+
+print(result)

@@ -17,7 +17,9 @@ streams = {}
 
 def create_stream(path,name):
     escaped_path = path.replace('/','%2F')
-    req = requests.get('https://127.0.0.1:8443/rest/stream/create?path=' + escaped_path + name,verify=False,auth=HTTPBasicAuth('mapr', 'mapr'))
+    url = 'https://127.0.0.1:8443/rest/stream/create?path=' + escaped_path + name + "&produceperm=p&consumeperm=p&topicperm=p"
+    # print("url = {}".format(url))
+    req = requests.post(url,verify=False,auth=HTTPBasicAuth('mapr', 'mapr'))
     return req.text    
     # return os.popen("maprcli stream create -path " + path + name + " -produceperm p -consumeperm p -topicperm p").read()    
 
@@ -70,6 +72,7 @@ for round in range(2):
                         else:
                             print("creating stream {}".format(key))
                             out = create_stream(path,key)
+                            print(out)
                         streams[key]["producer"] = Producer({'streams.producer.default.stream': path + key})
                     except Exception as e:
                         print("create stream failed")
@@ -77,7 +80,7 @@ for round in range(2):
                         break
                 p = streams[key]["producer"]
           
-                # print("producing {}".format(json.dumps(new_doc)))
+                print("producing {} into {}:{}".format(json.dumps(new_doc),path+key,value))
                 p.produce(value, json.dumps(new_doc).encode('utf-8'))
                 count += 1
                 # print("produced")
