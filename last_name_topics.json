@@ -1,0 +1,16 @@
+{
+	"timestamp":1539686613254,
+	"timeofday":"2018-10-16 12:43:33.254 GMT+0200 PM",
+	"status":"OK",
+	"total":1,
+	"data":[
+		{
+			"topic":"Toto",
+			"partitions":1,
+			"consumers":0,
+			"physicalsize":294912,
+			"logicalsize":180224,
+			"maxlag":0
+		}
+	]
+}
