@@ -4,6 +4,7 @@ import json
 import sys
 import os
 import requests
+import time
 import subprocess
 
 from requests.auth import HTTPBasicAuth
@@ -44,11 +45,14 @@ if connection.is_store_exists(table_path):
 else:
     store = connection.create_store(table_path)
 
+start_time = time.time()
 
 
 with open('data.json') as f:
     data = json.load(f)
 for doc in data:
+    append = True
+    start = time.time()
     print("--------------------------------")
     print("count = {}".format(count))
     print(doc)
@@ -64,19 +68,12 @@ for doc in data:
             num_val = float(value)
             # print("{} is a number. Skipping.".format(value))
             continue
-        except Exception as e:
-            # print(e)
-            # if value is not a number
-            # insert object_id into key_value stream
-            # print("{} is text.".format(value))
+        except :
             value = format_value(value)
-            new_doc = {"id" : object_id, "ts" : ts} # doc to be insterted in the stream
+            new_doc = {"_id" : object_id, "ts" : ts} # doc to be insterted in the stream
             if not key in streams: # if the stream isn't referenced it's created
-                # print("unknown stream, testing")
                 streams[key] = {}
-                # streams[key]["topics"] = []
                 try:
-                    # testing if stream exists
                     if os.path.islink(fullpath + key): # stream exists
                         print("stream exists")
                     else:
@@ -89,9 +86,18 @@ for doc in data:
                     print(e)
                     break
             p = streams[key]["producer"]      
-            # print("producing {} into {}:{}".format(json.dumps(new_doc),path+key,value))
-            p.produce(value, json.dumps(new_doc).encode('utf-8'))
-            count += 1
+            try:
+                 p.produce(value, json.dumps(new_doc).encode('utf-8'))
+            except:
+                print("produce failed")
+                append = False
+                break
     doc["_id"] = str(object_id)
     doc["ts"] = ts
-    store.insert_or_replace(connection.new_document(dictionary=doc))
+    count += 1
+    if append:
+        store.insert_or_replace(connection.new_document(dictionary=doc))
+        process_time = round((time.time() - start)*1000,0)
+        total_process_time = time.time() - start_time
+        average_process_time = round(total_process_time *1000 / count,0)
+        print("inserted - process time : {} ms - average = {} ms".format(process_time,average_process_time))
